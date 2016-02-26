@@ -3,11 +3,16 @@
 from Analysis import *
 import random, time
 
+
+
 def main():
 
 	
-		
-	
+	# This list and dictionary are now the default in the Analyzer. They
+	# do not need to be entered in a driver. However, if the dictionary is updated,
+	# either do so in Analysis.py or when initializing, set kD= name of new dicitonary 
+	# dictionary is the variable name of the updated dicitonary	
+
 	keyword_list = ["HillaryClinton", "Hillary2016", "Hillary",
 	"Lessig", "Lessig2016", "Lessig2016",
 	"O'Malley", "OMalley2016", "MartinOMalley",
@@ -47,92 +52,74 @@ def main():
 	('santorum', ["Santorum", "RickSantorum"]),
 	('trump', ["Trump", "DonaldTrump2016", "realDonaldTrump"])])
 
-	v = Analyzer(keyword_dictionary)
+	start_time = time.time()  #let's see the runtime of this
+
+
+	v = Analyzer(state='NH') #the state here is New Hampshire
+
+
+	filelist = v.make_file_list(02)  #tweet files for the month of February
+
+
+	f = v.screen_and_combine(filelist, "february.txt", notify=True)
+
+	# this will return the new name, in this case, "february.txt," of the output file, a combination of all the files
+	# 	in filelist. Notify simply prints to the console when the file is screened
+
+	# Demonstrating how one would call the functions. 
+
+	a = v.write_csv("FebCandidate.csv", f, county_names=False, notify=True)
+	b = v.write_csv("FebCandidate.tsv", f, county_names=False, labels=False)
+	c = v.write_csv("FebCounty.csv", f, county_names=False, labels=False, group_by="county", notify=True)
+	d = v.csv_convert("FebCounty.csv")
+
+
+
+
 	
-	print (v.write_csv("Testing321.csv", v.screen_coord("28-01-2016.txt"))) 
-	print (v.write_csv("Testing123.csv", v.screen_coord("28-01-2016.txt"), group_by="county")) 
-	
+	print "New files: ", a,b,c,d
 	print "done"
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-	'''
-	f
-	filelist.append(v.double_screen("26-01-2016.txt", keyword_list))
-	filelist.append(v.double_screen("27-01-2016.txt", keyword_list))
-	filelist.append(v.double_screen("28-01-2016.txt", keyword_list))
-	filelist.append(v.double_screen("29-01-2016.txt", keyword_list))
-	#v.screen_keywords("27-01-2016.txt", keyword_list)
 	
-	
-	rb = v.red_blue_chatter(['trump','clinton'], filelist, keyword_dictionary)
-	
-	for county in range(99):
-
-		c = v.create_points(county_list[county])
-		#print c
-		a = v.get_size(county_list, county)
-
-		red = rb[0]['trump'][0][county]
-		blue = rb[1]['clinton'][0][county]
-		print red
-		print blue, "\n"
-		#bloop = v.gen_color(red, blue)
-		
-
-		##print y
-		
-			
-	   # v.draw_county(c, bloop, test)
-
-	
-	#delete county_list
-
-	#print(name)
-	
-	#v.set_menu("testing", 0, 5)
-	test.getMouse()
-	test.close()
-	'''
-	
-
-
-
+start_time = time.time()
 
 main()
+
+print("--- completed in %s seconds ---" % (time.time() - start_time))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

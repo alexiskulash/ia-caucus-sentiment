@@ -77,7 +77,7 @@ def main():
 
 
 	
-	print "New files: ", a,b,c,d
+	print "New files: ", a,b,c
 	print "done"
 	
 start_time = time.time()

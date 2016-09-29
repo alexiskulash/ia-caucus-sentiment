@@ -2,15 +2,9 @@ from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.svm import SVR
 from gensim.models import Word2Vec
-from collections import defaultdict
-from nltk.corpus import stopwords
 from vectorizer import vectorize
-from cleaning import getTestingList
-from bs4 import BeautifulSoup
-from array import array
 import pandas as pd
-import numpy as np
-import gensim, nltk, logging, csv, string, re, os
+import gensim, csv, string, re, os
 
 def compareShapes(testArray):
 	test = getTestList()
@@ -37,8 +31,6 @@ def makePredictions():
 
 	print("Outputting results to a file...")
 
-	# guesses don't appear to be correct (they're too close to carson's # of votes)
-	# who wants to help point out my errors?
 	output = pd.DataFrame(data={"Candidate":candidates, "Estimated Votes":results, "Actual Votes":test["Total"]})
 	output.to_csv("NH_Guess.csv", delimiter=",", index=False, quoting=csv.QUOTE_MINIMAL, error_bad_lines=False)
 

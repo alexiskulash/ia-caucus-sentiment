@@ -1,14 +1,8 @@
-from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.svm import SVR
-from gensim.models import Word2Vec
 from collections import defaultdict
-from nltk.corpus import stopwords
 from bs4 import BeautifulSoup
 from array import array
 import pandas as pd
-import numpy as np
-import gensim, nltk, logging, csv, string, re, os
+import gensim, nltk, csv, string, re, os
 
 # note: run 'easy_install -U gensim' in terminal before importing gensim
 

@@ -46,6 +46,7 @@ try:
 except:
 	pass
 
+import pandas
 import os, sys
 import csv
 import time
@@ -60,52 +61,52 @@ class Analyzer(object):
 		#	can be set to any state in the US by entering its two letter representation, (e.g. 'NY' = New York, 'IL' = Illinois, etc.) 	
 		
 		
-		self._homeDirectory = os.getcwd()
-		self._notifyinit = notify
+		self.__homeDirectory = os.getcwd()
+		self.__notifyinit = notify
 		if notify:
 			print("setting up Analyzer ...")
 		try:
 			if input_directory is None:
-				self._indir = os.getcwd()
+				self.__indir = os.getcwd()
 			else:
-				self._indir = os.getcwd() + "/" + input_directory
+				self.__indir = os.getcwd() + "/" + input_directory
 			while True:
 				if not output_directory:
-					self._outdir = os.getcwd()
+					self.__outdir = os.getcwd()
 				if "/" not in output_directory:
-					home = self._homeDirectory
+					home = self.__homeDirectory
 					output_directory = home+"/"+output_directory
-					self._outdir = output_directory
+					self.__outdir = output_directory
 				if not os.path.isdir(output_directory):
 					if (raw_input("Can't find output directory. Make? (y/n)")) == 'y':
 						os.mkdir(output_directory)
-						self._outdir = output_directory
-						print(self._outdir + " created.")
+						self.__outdir = output_directory
+						print(self.__outdir + " created.")
 						continue
 
 					else:
 						print("NO")
-						self._outdir = self._homeDirectory
+						self.__outdir = self.__homeDirectory
 				else:
 					break
 
 
 			# if not output_directory:
-			# 	self._outdir = self._homeDirectory
+			# 	self.__outdir = self.__homeDirectory
 			# else:
-			# 	self._outdir = output_directory
+			# 	self.__outdir = output_directory
 			print("here")
-			self._state = state.upper()
-			self._statefilename = state +'.txt'
-			self._keywordlist = []
-			self._countyAmount = 1
+			self.__state = state.upper()
+			self.__statefilename = state +'.txt'
+			self.__keywordlist = []
+			self.__countyAmount = 1
 			
-			self._countiesList = self.read_in()
+			self.__countiesList = self.read_in()
 			
 			
 
 			if kD is None and kL is None:
-				self._keyworddictionary = dict([
+				self.__keyworddictionary = dict([
 				('clinton',["HillaryClinton", "Hillary2016", "Hillary", 'clinton', 'hilary']),
 				('lessig',["Lessig", "Lessig2016", "Lessig2016"]),
 				('o\'malley',["O'Malley", "OMalley2016", "MartinOMalley", 'omalley']),
@@ -126,42 +127,49 @@ class Analyzer(object):
 				('trump', ["Trump", "DonaldTrump2016", "realDonaldTrump"])])
 				if notify:
 					print("Keyword dictionary assigned.")
-				for key in self._keyworddictionary:
-						for word in self._keyworddictionary[key]:
-							self._keywordlist.append(word)
+				for key in self.__keyworddictionary:
+						for word in self.__keyworddictionary[key]:
+							self.__keywordlist.append(word)
 				if notify:
 					print("Keywords list created.")
 		
 			
 			elif kD is not None:
-				self._keyworddictionary = kD
+				self.__keyworddictionary = kD
 				if notify:
 					print("Keyword dictionary assigned.")
 				if kL is None:
-					for key in self._keyworddictionary:
-						for word in self._keyworddictionary[key]:
-							self._keywordlist.append(word)
+					for key in self.__keyworddictionary:
+						for word in self.__keyworddictionary[key]:
+							self.__keywordlist.append(word)
 					if notify:
 						print("Keywords list created.")
 			else:
-				self._keywordlist = kL
+				self.__keywordlist = kL
 				if notify:
 					print("Keywords list assigned.")
-				self._keyworddictionary = {key: [key] for key in kL}
+				self.__keyworddictionary = {key: [key] for key in kL}
 				if notify:
 					print("Keywords dictionary created.")
 			
 
-			self._outerBounds = []  #this is the box that contains the state
+			self.__outerBounds = []  #this is the box that contains the state
 
 
 
 			
-			self.normalize_list(self._keywordlist) #So capital letters, punctuation, and other things don't interfere.
+			self.normalize_list(self.__keywordlist) #So capital letters, punctuation, and other things don't interfere.
 		except:
-			os.chdir(self._homeDirectory)
+			os.chdir(self.__homeDirectory)
 
 		
+	def get_kD(self):
+
+		return self.__keyworddictionary
+
+	def get_kL(self):
+
+		return self.__keywordlist
 
 	def read_in(self, filename=None, notify=2):	
 
@@ -181,12 +189,12 @@ class Analyzer(object):
 
 
 		if notify ==2:
-			notify = self._notifyinit
+			notify = self.__notifyinit
 		if notify:
 			print("reading in state data ...")
 
 		if filename is None:
-			filename = self._statefilename
+			filename = self.__statefilename
 
 
 		counties = []	# a list of 2D arrays  (A 3D array? kind of?)
@@ -204,13 +212,13 @@ class Analyzer(object):
 		bounds.append(xsplit)	#the first lines of the text file are the maximums and minimums for the coordinates.
 		bounds.append(ysplit)
 
-		self._outerBounds = bounds[:]   #a copy of bounds is stored in the object
+		self.__outerBounds = bounds[:]   #a copy of bounds is stored in the object
 
-		self._countyAmount = int(f.readline())	#stores the number of counties in the state.
+		self.__countyAmount = int(f.readline())	#stores the number of counties in the state.
 
 		f.readline() #clears \n
 
-		for i in range (self._countyAmount):	#now the fun begins
+		for i in range (self.__countyAmount):	#now the fun begins
 			
 			coord = [] #empties coord every run through
 
@@ -251,7 +259,7 @@ class Analyzer(object):
 
 		f.close()  #closes the input file
 
-		os.chdir(self._homeDirectory)  #returns home.
+		os.chdir(self.__homeDirectory)  #returns home.
 		if notify:
 			print('state data read successfully.')
 
@@ -262,8 +270,8 @@ class Analyzer(object):
 		#Description: will return the string stored in each coord (the county name)
 
 		if counties is None:
-			counties = self._countiesList   #unless told otherwise, use the already stored data.
-		if (index == self._countyAmount):    
+			counties = self.__countiesList   #unless told otherwise, use the already stored data.
+		if (index == self.__countyAmount):    
 			return 'Other'
 	
 		coord = counties[index]
@@ -275,9 +283,9 @@ class Analyzer(object):
 	def get_county_name(self, s, size, counties=None):
 
 		if counties is None:
-			counties = self._countiesList
+			counties = self.__countiesList
 		a = []
-		for i in range(self._countyAmount):
+		for i in range(self.__countyAmount):
 			peint
 			coord = counties[i]
 			if coord[0][1] == size:
@@ -291,8 +299,8 @@ class Analyzer(object):
 		#Description: will return the index number in the array when given a county name.
 
 		if counties is None:
-			counties = self._countiesList
-		for i in range(self._countyAmount):
+			counties = self.__countiesList
+		for i in range(self.__countyAmount):
 
 			coord = counties[i]
 			if coord[0][0] == name:
@@ -306,7 +314,7 @@ class Analyzer(object):
 		#Description: will return how many [x,y] coords for the specified county
 
 		if counties is None:
-			counties = self._countiesList
+			counties = self.__countiesList
 
 		coord = counties[index]
 		size = coord[0][1]
@@ -316,9 +324,9 @@ class Analyzer(object):
 	def get_size(self, name, counties=None): #using the name of the county as a parameter
 
 		if counties is None:
-			counties = self._countiesList
+			counties = self.__countiesList
 
-		for i in range (self._countyAmount):
+		for i in range (self.__countyAmount):
 
 			coord = counties[i]
 			if coord[0][0] == name:
@@ -446,9 +454,9 @@ class Analyzer(object):
 		#Description: this will read the data of a collected tweet file, grab the ones that concern the candidates, and
 		#             copy them into a new text file with the prefix "screened_keywords_". It returns this new file name.
 		if notify == 2:
-			notify = self._notifyinit
+			notify = self.__notifyinit
 		
-		os.chdir(self._indir)
+		os.chdir(self.__indir)
 		while True:	
 			try:
 				inputFile = open(datedfilename, 'r')
@@ -465,7 +473,7 @@ class Analyzer(object):
 
 
 		if keywords_list is None:
-			keywords_list = self.normalize_list(self._keywordlist)
+			keywords_list = self.normalize_list(self.__keywordlist)
 			
 
 		
@@ -503,7 +511,7 @@ class Analyzer(object):
 			print("Screened for keywords.")  #notify will tell you when it completes this process. Good for debugging or monitoring.
 
 		
-		os.chdir(self._homeDirectory)
+		os.chdir(self.__homeDirectory)
 
 		inputFile.close()
 		outputFile.close()
@@ -515,9 +523,9 @@ class Analyzer(object):
 		#Description: takes in a collected tweet file, reads it, and copies the tweets that are geotagged into a new text file
 		#				with the prefix "screened_location_". It returns this new file name.
 		if notify == 2:
-			notify = self._notifyinit
+			notify = self.__notifyinit
 		
-		os.chdir(self._indir)
+		os.chdir(self.__indir)
 		while True:	
 			try:
 				inputFile = open(datedfilename, 'r')
@@ -554,7 +562,7 @@ class Analyzer(object):
 		outputFile.close()
 
 		
-		os.chdir(self._homeDirectory)
+		os.chdir(self.__homeDirectory)
 
 		return new_file_name  #return the new file name.
 
@@ -565,15 +573,15 @@ class Analyzer(object):
 		#				a text file with the prefix "screened_", and then return the new file name. 
 
 		if notify == 2:
-			notify = self._notifyinit
+			notify = self.__notifyinit
 
 		if keywords_list is None:
-			keywords_list = self._keywordlist
+			keywords_list = self.__keywordlist
 			new_file_name = self.screen_keywords(self.screen_coord(datedfilename, notify=notify), notify=notify)
 		else:
 			new_file_name = self.screen_keywords(self.screen_coord(datedfilename, notify=notify), keywords_list=keywords_list, notify=notify)
 
-		os.chdir(self._indir)
+		os.chdir(self.__indir)
 
 		try:
 			os.rename(new_file_name, "screened_"+datedfilename)
@@ -582,7 +590,7 @@ class Analyzer(object):
 			print(new_file_name)
 			print(datedfilename)
 
-		os.chdir(self._homeDirectory)
+		os.chdir(self.__homeDirectory)
 
 		return ("screened_"+datedfilename) #a string
 
@@ -593,9 +601,9 @@ class Analyzer(object):
 		#				It only looks for the input files in the previously declared input directory
 		
 		if notify == 2:
-			notify = self._notifyinit
+			notify = self.__notifyinit
 
-		os.chdir(self._indir)
+		os.chdir(self.__indir)
 
 		filelist = []
 
@@ -615,7 +623,7 @@ class Analyzer(object):
 					filelist.append(filename)
 
 		
-		os.chdir(self._homeDirectory)
+		os.chdir(self.__homeDirectory)
 		return filelist 	#a list of the filenames (strings)
 
 	def combine_files(self, filelist, new_name, notify=2):
@@ -624,9 +632,9 @@ class Analyzer(object):
 		#				this is useful for recombining files that were split up. 
 		
 		if notify == 2:
-			notify = self._notifyinit
+			notify = self.__notifyinit
 
-		os.chdir(self._indir)
+		os.chdir(self.__indir)
 
 		output = open(new_name, 'w')
 
@@ -639,7 +647,7 @@ class Analyzer(object):
 		output.close()
 
 		
-		os.chdir(self._homeDirectory)
+		os.chdir(self.__homeDirectory)
 		if notify:
 			print("combined "+filelist+" into "+new_name)
 
@@ -649,7 +657,7 @@ class Analyzer(object):
 
 		#Description: this will use both double_screen and combine_files on a filelist
 		if notify == 2:
-			notify = self._notifyinit
+			notify = self.__notifyinit
 
 		return (self.double_screen(self.combine_files(filelist, new_name), keywords_list=keywords_list, notify=notify))
 
@@ -659,10 +667,10 @@ class Analyzer(object):
 		#				dictionary where instead of keywords, there is a list with an element for each county in the state.
 		#				This will later be filled with the data in tally_scores
 
-		ca = self._countyAmount
+		ca = self.__countyAmount
 
 		if dictionary is None:
-			dictionary = self._keyworddictionary.copy()
+			dictionary = self.__keyworddictionary.copy()
 
 		s = []   # a list to hold the scores, to be assigned to each key in the dictionary
 		scores = dictionary.copy()		#new dictionary
@@ -747,7 +755,7 @@ class Analyzer(object):
 
 		
 		if county_list is None:
-			county_list = self._countiesList[:]
+			county_list = self.__countiesList[:]
 		
 
 		x = float(coordinates[0])
@@ -756,9 +764,9 @@ class Analyzer(object):
 		foundit = False
 
 		if y == 0.0 and x == 0.0:		  #if not in the counties
-			return [self._countyAmount, 'Other']
+			return [self.__countyAmount, 'Other']
 		
-		for i in range (self._countyAmount):
+		for i in range (self.__countyAmount):
 
 			county = county_list[i]
 			name,size = county[0]
@@ -768,7 +776,7 @@ class Analyzer(object):
 			if foundit:
 				return [i, name]          #the index and name string of the county
 
-		return[self._countyAmount, 'Other'] #If it is not in any of the counties, it stores the data in "Other"
+		return[self.__countyAmount, 'Other'] #If it is not in any of the counties, it stores the data in "Other"
 
 		
 	
@@ -783,12 +791,12 @@ class Analyzer(object):
 		#				will let you know (if it is a filelist) what file it is currently taking care of (1 file, 2 file, etc.)
 
 		if notify == 2:
-			notify = self._notifyinit
-		os.chdir(self._indir)
+			notify = self.__notifyinit
+		os.chdir(self.__indir)
 		i=0
 
 		if dictionary is None:
-			dictionary = self._keyworddictionary.copy()
+			dictionary = self.__keyworddictionary.copy()
 		
 		score_dictionary = self.dictionary_to_scores(dictionary=dictionary, names=names) 
 		
@@ -833,7 +841,7 @@ class Analyzer(object):
 		else:
 			print("Wrong input type for tally_scores")
 			return
-		os.chdir(self._homeDirectory)
+		os.chdir(self.__homeDirectory)
 
 
 	def check_if_filtered(self, filename):  
@@ -868,9 +876,9 @@ class Analyzer(object):
 		#				users. (This was not a part of the IA Caucus project)
 
 		if notify == 2:
-			notify = self._notifyinit
+			notify = self.__notifyinit
 
-		os.chdir(self._indir)
+		os.chdir(self.__indir)
 	 	output_type = destination[-4:]
 	 	out_message = ""
 
@@ -900,7 +908,7 @@ class Analyzer(object):
 				if county == "Other":
 					location = self.get_location(tweet)
 
-				else: location = county+", " + self._state
+				else: location = county+", " + self.__state
 			elif len(tweet) > 6:
 				location = self.get_location(tweet)
 			else:
@@ -912,7 +920,7 @@ class Analyzer(object):
 		inputFile.close()
 
 		
-		os.chdir(self._outdir)
+		os.chdir(self.__outdir)
 		
 
 
@@ -932,7 +940,7 @@ class Analyzer(object):
 				row = [usernames[d], "", locations[d], messages[d], ""]
 				outputFile.writerow(row)
 
-		os.chdir(self._homeDirectory) 
+		os.chdir(self.__homeDirectory) 
 
 		if notify:
 			print destination, " created."
@@ -971,7 +979,7 @@ class Analyzer(object):
 		#Description: this will output the data in a format optimal for training an algorithm on. It calls write_csv, but 
 		#				selects all the arguments for you.
 		if notify == 2:
-			notify = self._notifyinit
+			notify = self.__notifyinit
 		if notify:
 			print("Creating the training file ...")
 		return self.write_csv(destination, inputFile, group_by=group_by, training = True, notify=notify)
@@ -987,7 +995,7 @@ class Analyzer(object):
 		#										   notify,		 will notify you when the output file has been written. 
 
 		if notify == 2:
-			notify = self._notifyinit
+			notify = self.__notifyinit
 
 
 		if training:
@@ -995,7 +1003,7 @@ class Analyzer(object):
 			labels = False
 			training_labels = True
 
-		ca = self._countyAmount
+		ca = self.__countyAmount
 		output_type = destination[-4:]
 		bigtraininglist = []
 		if score_tally is None:
@@ -1003,9 +1011,9 @@ class Analyzer(object):
 			#print score_tally["clinton"]
 
 		
-		os.chdir(self._outdir)
+		os.chdir(self.__outdir)
 		if notify:
-			print("Changing to output directory " +self._outdir+" ... ")
+			print("Changing to output directory " +self.__outdir+" ... ")
 	 
 			
 
@@ -1045,7 +1053,7 @@ class Analyzer(object):
 								'''
 								if county_names:
 									labels_list.append("")
-									#if (i<self._countyAmount):
+									#if (i<self.__countyAmount):
 									#print score_tally[key][i]
 
 									#labels_list.append(score_tally[key][i][1])    #WORKHERE
@@ -1053,8 +1061,8 @@ class Analyzer(object):
 									#print labels_list
 								'''
 								#if not county_names:
-								if (i < self._countyAmount):
-									county = self._countiesList[:][i][0][0]
+								if (i < self.__countyAmount):
+									county = self.__countiesList[:][i][0][0]
 								else:
 									county = 'Other'
 								if county_names:
@@ -1114,7 +1122,7 @@ class Analyzer(object):
 				if not labels:
 					print("You should really label these ... (labels=True)")
 
-				county_list = self._countiesList[:]
+				county_list = self.__countiesList[:]
 				flipped_tally = []
 				#reverse_dictionary = {}
 				county_list_names = []
@@ -1161,10 +1169,10 @@ class Analyzer(object):
 					outputFile.writerow(m)
 
 
-		os.chdir(self._homeDirectory) 
+		os.chdir(self.__homeDirectory) 
 		if notify:
 			print(destination +" created.")
-			print("Changing to home directory "+self._homeDirectory)
+			print("Changing to home directory "+self.__homeDirectory)
 		return destination
 
 	def csv_convert(self, inputFile, output=None, notify=2):
@@ -1173,9 +1181,9 @@ class Analyzer(object):
 		#				it will just keep the same name as the original and just change the extension at the end.
 
 		if notify == 2:
-			notify = self._notifyinit
+			notify = self.__notifyinit
 
-		os.chdir(self._outdir)
+		os.chdir(self.__outdir)
 			
 			
 
@@ -1302,8 +1310,8 @@ class Visualizer(Analyzer):
 
 
 		#-96.639389   40.375458		outer coordinates of IA
-		#-90.13self._countyAmount38   43.500713
-		bounds = self._outerBounds[:]
+		#-90.13self.__countyAmount38   43.500713
+		bounds = self.__outerBounds[:]
 		#Note: this assumes (0,0) is the bottom right corner, and (max x, max y) is top left
 
 		width_min = float(bounds[1][0])*-1
@@ -1385,10 +1393,9 @@ if __name__ == '__main__':
 
 	print("--- completed in %s seconds ---" % (time.time() - start_time))
 	print("Dictionary Used:")
-	print(v._keyworddictionary)
+	print(v.get_kD())
 	print("Keywords list used:")
-	print(v._keywordlist)
-
+	print(v.get_kL())
 
 
 

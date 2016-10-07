@@ -1,16 +1,18 @@
-from cleaning import cleanTweets
+from sklearn.feature_extraction.text import CountVectorizer
+from cleaning import main
 from array import array
 import numpy as np
 import gensim, nltk, logging, csv, string, re, os
 
 def vectorize():
-	cleanTweetList = cleanTweets()
+	cleaned_tweets = main()
 
 	print("Vectorizing...")
 
 	vectorizer = CountVectorizer(analyzer="word", tokenizer=None, preprocessor=None, stop_words=None, max_features=5000)
-	testData = vectorizer.fit_transform(cleanTweetList)
+	testData = vectorizer.fit_transform(cleaned_tweets)
 	testDataArray = testData.toarray()
+	print(testDataArray)
 	
 	print("Done.\n")
 
@@ -26,3 +28,5 @@ def vocabCounts():
 	dist = np.sum(testDataArray, axis=0)
 	for tag, count in zip(vocab, dist):
 		print(count, tag)
+
+vectorize()

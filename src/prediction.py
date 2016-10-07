@@ -1,28 +1,25 @@
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.svm import SVR
+from sklearn import cross_validation
 from gensim.models import Word2Vec
 from vectorizer import vectorize
 import pandas as pd
 import gensim, csv, string, re, os
 
-def compareShapes(testArray):
-	test = getTestList()
-	# compare (rows, features)
-	# note: row numbers must match for shape comparison to work
-	print("Comparing the following shapes:")
-	print(testDataArray.shape)
-	print(test["Total"].shape, "\n")
-
-def makePredictions():
+def main():
 	candidates = ["Bush", "Carson", "Christie", "Clinton", "Cruz", "Gilmore", "Graham", "Huckabee", "Jindal", "Kasich", "Lessig", "O'Malley", "Paul", "Rubio", "Sanders", "Santorum", "Trump"]
 
-	test = getTestingList()
+	data = pd.read_csv('NH_Training.csv')
+	train, test = cross_validation.train_test_split(data, test_size = 0.1)
+	attributes_to_use = ['Tweet list']
+
 	testDataArray = vectorize()
+	print(testDataArray)
 	# use sklearn SVR .fit(x, y) to analyze
 	# x: testDataArray, y: prediction
 	regressor = SVR()
-	regressor = regressor.fit(testDataArray, test["Total"])
+	regressor = regressor.fit(testDataArray, test['Total'])
 
 	print("Making predictions...")
 
@@ -47,4 +44,4 @@ def pretrainedTwitterVectors():
 
   	return twitterModel
 
-makePredictions()
+main()

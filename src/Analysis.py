@@ -12,6 +12,9 @@ Made for Python 2
 
 UPDATES:
 
+	10.6
+
+	* Bug fixes with keyword dictionary/list
 
 	4.8
 
@@ -53,7 +56,7 @@ import time
 
 class Analyzer(object):
 	
-	def __init__(self, kD=None, kL=None, state='ia', input_directory=None, output_directory="Analysis_Results", notify=False):
+	def __init__(self, kD=None, kL=None, state='ia', input_directory=None, output_directory=None, notify=False):
 
 		# This list and dictionary are now the default in the Analyzer. They do not need to be entered in a driver. 
 		#	However, if the dictionary is updated, either do so in Analysis.py, or when initializing set kD= name of new dicitonary 
@@ -70,32 +73,42 @@ class Analyzer(object):
 				self.__indir = os.getcwd()
 			else:
 				self.__indir = os.getcwd() + "/" + input_directory
-			while True:
-				if not output_directory:
-					self.__outdir = os.getcwd()
-				if "/" not in output_directory:
-					home = self.__homeDirectory
-					output_directory = home+"/"+output_directory
-					self.__outdir = output_directory
-				if not os.path.isdir(output_directory):
-					if (raw_input("Can't find output directory. Make? (y/n)")) == 'y':
-						os.mkdir(output_directory)
-						self.__outdir = output_directory
-						print(self.__outdir + " created.")
-						continue
+			if output_directory  is None:
+				self.__outdir = os.getcwd()
+			else:
+				while True:
+					if not output_directory:
+						self.__outdir = os.getcwd()
+					elif "/" not in output_directory:
+						home = self.__homeDirectory
+						output_directory = home+"/"+output_directory
+						
+					if not os.path.isdir(output_directory):
+						
+						if (raw_input("Can't find output directory. Make? (y/n)\t")) == 'y':
+							os.mkdir(output_directory)
+							self.__outdir = output_directory
+							print(self.__outdir + " created.")
+							
 
+						else:
+							
+							home = self.__homeDirectory
+							output_directory = home
+							self.__outdir = home
+							print('output directory is:', output_directory)
+							
 					else:
-						print("NO")
-						self.__outdir = self.__homeDirectory
-				else:
-					break
+						self.__outdir = output_directory
+						break
 
+		
 
 			# if not output_directory:
 			# 	self.__outdir = self.__homeDirectory
 			# else:
 			# 	self.__outdir = output_directory
-			print("here")
+			
 			self.__state = state.upper()
 			self.__statefilename = state +'.txt'
 			self.__keywordlist = []
@@ -104,7 +117,7 @@ class Analyzer(object):
 			self.__countiesList = self.read_in()
 			
 			
-
+			
 			if kD is None and kL is None:
 				self.__keyworddictionary = dict([
 				('clinton',["HillaryClinton", "Hillary2016", "Hillary", 'clinton', 'hilary']),
@@ -127,6 +140,7 @@ class Analyzer(object):
 				('trump', ["Trump", "DonaldTrump2016", "realDonaldTrump"])])
 				if notify:
 					print("Keyword dictionary assigned.")
+
 				for key in self.__keyworddictionary:
 						for word in self.__keyworddictionary[key]:
 							self.__keywordlist.append(word)
@@ -135,7 +149,10 @@ class Analyzer(object):
 		
 			
 			elif kD is not None:
+				print "kD not None"
 				self.__keyworddictionary = kD
+				print kD
+				print self.__keyworddictionary
 				if notify:
 					print("Keyword dictionary assigned.")
 				if kL is None:
@@ -161,6 +178,7 @@ class Analyzer(object):
 			self.normalize_list(self.__keywordlist) #So capital letters, punctuation, and other things don't interfere.
 		except:
 			os.chdir(self.__homeDirectory)
+			print("Build failed")
 
 		
 	def get_kD(self):
@@ -464,8 +482,8 @@ class Analyzer(object):
 					print("opened " + datedfilename)
 				break
 			except:
-				print("Can't find", datedfilename)
-				print("Current working directory is", os.getcwd())
+				print("Can't find"+ datedfilename)
+				print("Current working directory is"+ os.getcwd())
 				while True:
 					datedfilename = raw_input("Enter a input file name or change directory (cd):")
 					if "cd " in datedfilename[:3]:
@@ -649,7 +667,7 @@ class Analyzer(object):
 		
 		os.chdir(self.__homeDirectory)
 		if notify:
-			print("combined "+filelist+" into "+new_name)
+			print("combined ", filelist, " into " + new_name)
 
 		return new_name #a string
 
@@ -711,8 +729,8 @@ class Analyzer(object):
 			coordinates.append(float(d[0]))
 			coordinates.append(float(d[1]))
 		except:
-			print line
-			print d
+			print(line)
+			print(d)
 			coordinates = [0,0]
 
 		
@@ -836,7 +854,7 @@ class Analyzer(object):
 				
 				inputFile.close()
 				if notify:
-					print i, " files analyzed."
+					print(str(i) +" files analyzed.")
 			return score_dictionary
 		else:
 			print("Wrong input type for tally_scores")
@@ -943,7 +961,7 @@ class Analyzer(object):
 		os.chdir(self.__homeDirectory) 
 
 		if notify:
-			print destination, " created."
+			print(destination + " created.")
 		return destination
 
 
@@ -984,7 +1002,7 @@ class Analyzer(object):
 			print("Creating the training file ...")
 		return self.write_csv(destination, inputFile, group_by=group_by, training = True, notify=notify)
 
-	def write_csv(self, destination, inputFile, group_by="candidate", text=True, score=True, county_names=False, score_tally=None, labels=True, notify=2, training=False, other=False):
+	def write_csv(self, destination, inputFile, group_by="candidate", text=True, score=True, county_names=False, score_tally=None, labels=True, notify=2, training=False, other=False, training_labels=False):
 
 		#Description: this is the major function. It takes in an input file/filelist and writes a csv or tsv file 
 		#				(see tally_scores for a deeper explanation of exactly what/how things are scored). The defaulted
@@ -1197,11 +1215,11 @@ class Analyzer(object):
 		if filetype == '.csv':
 			csv.writer(file(name2, 'w+'), delimiter='\t').writerows(csv.reader(open(inputFile)))
 			if notify:
-				print(inputfile+" converted to "+filetype)
+				print(inputFile+ " converted to "+ filetype)
 		elif filetype == '.tsv':
 			csv.writer(file(name1, 'w+')).writerows(csv.reader(open(inputFile), delimiter='\t'))
 			if notify:
-				print(inputfile+" converted to "+filetype)
+				print(inputFile + " converted to " + filetype)
 
 	'''
 	def chatter(self, candidate, filename, dictionary):  #filename is a list of files here of any size
@@ -1378,10 +1396,16 @@ if __name__ == '__main__':
 
 
 
+
 	start_time = time.time()
 
+	frontrunners_dictionary = dict([
+	('clinton', ["HillaryClinton", "Hillary2016", "Hillary", 'clinton', 'hilary', "Imwithher", "I\'m with her", "hillyes", "hill yes", "kaine"]),
+	('trump', ["Trump", "DonaldTrump2016", "realDonaldTrump", "trumppence"])
+	])
+
 								#Where the tweets are         #Where the csvs will go
-	v = Analyzer(state='NH', input_directory="Dated_Input", output_directory="Analyis_Results", notify=True)
+	v = Analyzer(state='NH', kD = frontrunners_dictionary, input_directory="Dated_Input", output_directory="Analyis_Results", notify=True)
 
 
 	big_input_file = v.screen_keywords("FebTweets.txt")

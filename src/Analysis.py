@@ -85,7 +85,7 @@ class Analyzer(object):
 						
 					if not os.path.isdir(output_directory):
 						
-						if (raw_input("Can't find output directory. Make? (y/n)\t")) == 'y':
+						if (input("Can't find output directory. Make? (y/n)\t")) == 'y':
 							os.mkdir(output_directory)
 							self.__outdir = output_directory
 							print(self.__outdir + " created.")
@@ -149,10 +149,10 @@ class Analyzer(object):
 		
 			
 			elif kD is not None:
-				print "kD not None"
+				print("kD not None")
 				self.__keyworddictionary = kD
-				print kD
-				print self.__keyworddictionary
+				print(kD)
+				print(self.__keyworddictionary)
 				if notify:
 					print("Keyword dictionary assigned.")
 				if kL is None:
@@ -202,7 +202,7 @@ class Analyzer(object):
 				break
 			except:
 				print("ERROR: the directory "+ state_dir +" was not found in " +os.getcwd())
-				state_dir = raw_input("The state text files are required for the coordinates of the counties. \nWhat is the relative or absolute path of the directory that has this data in it?\t")
+				state_dir = input("The state text files are required for the coordinates of the counties. \nWhat is the relative or absolute path of the directory that has this data in it?\t")
 				attempt = 1
 
 
@@ -485,7 +485,7 @@ class Analyzer(object):
 				print("Can't find"+ datedfilename)
 				print("Current working directory is"+ os.getcwd())
 				while True:
-					datedfilename = raw_input("Enter a input file name or change directory (cd):")
+					datedfilename = input("Enter a input file name or change directory (cd):")
 					if "cd " in datedfilename[:3]:
 						os.chdir(datedfilename[3:])
 
@@ -553,7 +553,7 @@ class Analyzer(object):
 			except:
 				print("Can't find", datedfilename)
 				print("Current working directory is", os.getcwd())
-				datedfilename = raw_input("Enter a input file name:")
+				datedfilename = input("Enter a input file name:")
 
 		new_file_name = "screened_location_"+ datedfilename
 
@@ -897,8 +897,8 @@ class Analyzer(object):
 			notify = self.__notifyinit
 
 		os.chdir(self.__indir)
-	 	output_type = destination[-4:]
-	 	out_message = ""
+		output_type = destination[-4:]
+		out_message = ""
 
 
 		inputFile = open(filename, "r")
@@ -942,7 +942,7 @@ class Analyzer(object):
 		
 
 
-		with open(destination, 'wb') as csvfile:
+		with open(destination, 'w') as csvfile:
 			if output_type=='.tsv':
 	
 				outputFile = csv.writer(csvfile, delimiter='\t')
@@ -1035,7 +1035,7 @@ class Analyzer(object):
 	 
 			
 
-		with open(destination, 'wb') as csvfile:
+		with open(destination, 'w') as csvfile:
 
 			if output_type=='.tsv':
 		
@@ -1213,11 +1213,11 @@ class Analyzer(object):
 			name1, name2 = output, output
 
 		if filetype == '.csv':
-			csv.writer(file(name2, 'w+'), delimiter='\t').writerows(csv.reader(open(inputFile)))
+			csv.writer(open(name2, 'w+'), delimiter='\t').writerows(csv.reader(open(inputFile)))
 			if notify:
 				print(inputFile+ " converted to "+ filetype)
 		elif filetype == '.tsv':
-			csv.writer(file(name1, 'w+')).writerows(csv.reader(open(inputFile), delimiter='\t'))
+			csv.writer(open(name1, 'w+')).writerows(csv.reader(open(inputFile), delimiter='\t'))
 			if notify:
 				print(inputFile + " converted to " + filetype)
 

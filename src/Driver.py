@@ -58,12 +58,12 @@ def main():
 	v = Analyzer(state='NH') #the state here is New Hampshire
 
 
-	filelist = v.make_file_list(02)  #tweet files for the month of February
+	filelist = v.make_file_list('02')  #tweet files for the month of February
 
 
-	f = v.screen_and_combine(filelist, "february.txt", notify=True)
+	f = v.screen_and_combine(filelist, "FebTweets.txt", notify=True)
 
-	# this will return the new name, in this case, "february.txt," of the output file, a combination of all the files
+	# this will return the new name, in this case, "FebTweets.txt," of the output file, a combination of all the files
 	# 	in filelist. Notify simply prints to the console when the file is screened
 
 	# Demonstrating how one would call the functions. 
@@ -77,8 +77,8 @@ def main():
 
 
 	
-	print "New files: ", a,b,c
-	print "done"
+	print("New files: ", a,b,c)
+	print("done")
 	
 start_time = time.time()
 

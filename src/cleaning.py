@@ -1,45 +1,32 @@
 from collections import defaultdict
-from bs4 import BeautifulSoup
-from array import array
 from nltk.corpus import stopwords
-from sklearn import cross_validation
 import pandas as pd
-import gensim, nltk, csv, string, re, os
+import re
 
-# note: run 'easy_install -U gensim' in terminal before importing gensim
+def clean():
+    # download nltk sets if you haven't already
+    #nltk.download()
 
-def main():
-	# cleaning up tweetList
-	# TODO: get BeautifulSoup working
-	# TODO: get re.sub() replacement working so we can remove punctuation
-	# check kaggle pt. 1 for instructions on both
+    # file to pull candidate, county, votes & tweets from
+    candidate_data = pd.read_csv('NH_Data.csv')
+    tweet_list = []
+    
+    candidate_data['Tweet list'] = candidate_data['Tweet list'].fillna('')
+    
+    x = 0
+    word_list = []
+    all_words_list = []
+    stop_words = set(stopwords.words("english"))
+    stop_words.add('n')
+    
+    while x < len(candidate_data['Tweet list']):
+        words = re.sub('[^\w-]', ' ', candidate_data['Tweet list'][x])
+        word_list = words.split()
+        word_list = [w for w in word_list if not w in stop_words]
+        a_big_string = ', '.join(word_list)
+        candidate_data['Tweet list'][x] = a_big_string
+        x = x + 1
+    
+    return candidate_data
 
-	# download nltk sets if you haven't already, otherwise comment this out
-	#nltk.download()
-
-	state = "NH"
-	frontrunnerList = ["Clinton", "Cruz", "Sanders", "Trump"]
-	counties = ["Belknap", "Carroll", "Cheshire", "Coos", "Grafton", "Hillsborough", "Merrimack", "Rockingham", "Strafford", "Sullivan", "Other", "Total"]
-	candidates = ["Bush", "Carson", "Christie", "Clinton", "Cruz", "Gilmore", "Graham", "Huckabee", "Jindal", "Kasich", "Lessig", "O'Malley", "Paul", "Rubio", "Sanders", "Santorum", "Trump"]
-
-	data = pd.read_csv('NH_Training.csv')
-	print(data)
-	train, test = cross_validation.train_test_split(data, test_size = 0.1)
-	attributes_to_use = ['Tweet list']
-
-	print ("\nCleaning tweets...")
-
-	cleanTweetList = []
-
-	words = " ".join(map(str, data['Tweet list']))
-	words = words.lower().split()
-	stops = set(stopwords.words("english"))
-	meaningfulWords = [w for w in words if not w in stops]
-	cleanTweets = " ".join(meaningfulWords)
-	cleanTweetList.append(cleanTweets)
-
-	print("Done.\n")
-
-	return cleanTweetList
-
-main()
+#result = clean()

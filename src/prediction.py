@@ -1,47 +1,28 @@
-from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.svm import SVR
-from sklearn import cross_validation
+from sklearn import model_selection as ms
 from gensim.models import Word2Vec
 from vectorizer import vectorize
+from cleaning import clean
 import pandas as pd
-import gensim, csv, string, re, os
 
-def main():
-	candidates = ["Bush", "Carson", "Christie", "Clinton", "Cruz", "Gilmore", "Graham", "Huckabee", "Jindal", "Kasich", "Lessig", "O'Malley", "Paul", "Rubio", "Sanders", "Santorum", "Trump"]
+def prediction(vectorized_data):   
+    headers = list(vectorized_data.columns.values)
+    vector_headers = headers[5:]
 
-	data = pd.read_csv('NH_Training.csv')
-	train, test = cross_validation.train_test_split(data, test_size = 0.1)
-	attributes_to_use = ['Tweet list']
+    target_column = vectorized_data['Number of Votes']
+    predictor_columns = vectorized_data.drop('Number of Votes', 1)
+    vector_columns = vectorized_data[vector_headers]
+    
+    (train_data, test_data, train_target, test_target) =  ms.train_test_split(predictor_columns, target_column, test_size = 0.15)    
+    
+    classifier = RandomForestClassifier(n_estimators=10)
+    classifier = classifier.fit(train_data[vector_headers], train_target)
+    results = classifier.predict(test_data[vector_headers])
+    
+    output = pd.DataFrame(data={"Candidate":test_data['Candidate'], "County":test_data['County'], "Estimated Votes":results, "Actual Votes":test_target})    
+    return output
 
-	testDataArray = vectorize()
-	print(testDataArray)
-	# use sklearn SVR .fit(x, y) to analyze
-	# x: testDataArray, y: prediction
-	regressor = SVR()
-	regressor = regressor.fit(testDataArray, test['Total'])
-
-	print("Making predictions...")
-
-	# use sklearn SVR to make predictions
-	results = regressor.predict(testDataArray)
-
-	print("Outputting results to a file...")
-
-	output = pd.DataFrame(data={"Candidate":candidates, "Estimated Votes":results, "Actual Votes":test["Total"]})
-	output.to_csv("NH_Guess.csv", delimiter=",", index=False, quoting=csv.QUOTE_MINIMAL, error_bad_lines=False)
-
-	print("Done.\n")
-
-def pretrainedTwitterVectors():
-	# loading in pretrained word2vec twitter model
-	# download "twitter (2B Tweets)" with 25 dimensions from the following link
-  	# https://github.com/3Top/word2vec-api
-  	# then unzip the folder into the same folder as machine_learning.py
-	# the section is commented out because it throws errors currently
-	# note: need to delete our candidate's names from model (if they're even in there)
-  	twitterModel = gensim.models.word2vec.Word2Vec.load_word2vec_format(os.path.join(os.path.dirname(__file__), 'glove.twitter.27B.25d.txt'), binary=False)
-
-  	return twitterModel
-
-main()
+cleaned_tweets = clean()
+vectorized_data = vectorize(cleaned_tweets)
+results = prediction(vectorized_data)
+print(results)

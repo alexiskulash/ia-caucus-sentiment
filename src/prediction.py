@@ -14,7 +14,6 @@ def prediction(vectorized_data):
     predictor_columns = vectorized_data.drop('Number of Votes', 1)
     vector_columns = vectorized_data[vector_headers]
     
-    
     vectorized_data.reindex(np.random.permutation(vectorized_data.index))
     NUM_ROWS = vectorized_data.shape[0]
     NUM_TEST = int(NUM_ROWS*.15)
@@ -24,16 +23,16 @@ def prediction(vectorized_data):
     train_data = train_data[vector_header]
 
     test_data = vectorized_data[:NUM_TEST]
+    test_candidates = test_data['Candidate']
+    test_counties = test_data['County']
     test_target = test_data['Number of Votes']
     test_data = test_data[vector_header]
-    
-    #(train_data, test_data, train_target, test_target) =  ms.train_test_split(predictor_columns, target_column, test_size = 0.15)    
-    
+        
     classifier = RandomForestClassifier(n_estimators=10)
     classifier = classifier.fit(train_data[vector_headers], train_target)
     results = classifier.predict(test_data[vector_headers])
     
-    output = pd.DataFrame(data={"Candidate":test_data['Candidate'], "County":test_data['County'], "Estimated Votes":results, "Actual Votes":test_target})    
+    output = pd.DataFrame(data={"Candidate":test_candidates, "County":test_counties, "Estimated Votes":results, "Actual Votes":test_target})    
     return output
 
 cleaned_tweets = clean()

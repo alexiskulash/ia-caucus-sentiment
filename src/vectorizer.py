@@ -4,7 +4,7 @@ import numpy as np
 
 def vectorize(data):    
     vectorizer = CountVectorizer(analyzer="word", tokenizer=None, preprocessor=None, stop_words=None, max_features=5000)
-    vectorized_data = vectorizer.fit_transform(data['Tweet list'])
+    vectorized_data = vectorizer.fit_transform(data['Tweet List'])
     vectorized_data = vectorized_data.toarray()
     vocab = vectorizer.get_feature_names()
     

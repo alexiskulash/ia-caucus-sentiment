@@ -11,7 +11,7 @@ def clean():
     candidate_data = pd.read_csv('NH_Data.csv')
     tweet_list = []
     
-    candidate_data['Tweet list'] = candidate_data['Tweet list'].fillna('')
+    candidate_data['Tweet List'] = candidate_data['Tweet List'].fillna('')
     
     x = 0
     word_list = []
@@ -19,12 +19,12 @@ def clean():
     stop_words = set(stopwords.words("english"))
     stop_words.add('n')
     
-    while x < len(candidate_data['Tweet list']):
-        words = re.sub('[^\w-]', ' ', candidate_data['Tweet list'][x])
+    while x < len(candidate_data['Tweet List']):
+        words = re.sub('[^\w-]', ' ', candidate_data['Tweet List'][x])
         word_list = words.split()
         word_list = [w for w in word_list if not w in stop_words]
         a_big_string = ', '.join(word_list)
-        candidate_data['Tweet list'][x] = a_big_string
+        candidate_data['Tweet List'][x] = a_big_string
         x = x + 1
     
     return candidate_data
